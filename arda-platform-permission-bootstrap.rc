@@ -1,0 +1,9 @@
+service arda-platform-permission-bootstrap /product/bin/arda-platform-permission-bootstrap
+    class late_start
+    user root
+    group root system shell
+    oneshot
+    disabled
+
+on property:sys.boot_completed=1
+    start arda-platform-permission-bootstrap
