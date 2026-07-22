@@ -7,3 +7,19 @@ service arda-connectivityd /system/bin/sh /product/bin/arda-connectivity-supervi
 
 on property:sys.boot_completed=1
     start arda-connectivityd
+
+# ARDA_AAP_SESSION_AUTOSTART_BEGIN
+service arda_aap_session /system/bin/sh /system_ext/bin/arda-aap-autostart
+    class late_start
+    user root
+    group root system shell bluetooth wifi inet input graphics
+    seclabel u:r:su:s0
+    disabled
+    restart_period 2
+
+# Raspberry Pi's gadget implementation keeps sys.usb.state/config at adb
+# during AOAP. Keep one receiver waiting from boot instead of relying on an
+# accessory property transition that never appears on this target.
+on property:sys.boot_completed=1
+    start arda_aap_session
+# ARDA_AAP_SESSION_AUTOSTART_END
