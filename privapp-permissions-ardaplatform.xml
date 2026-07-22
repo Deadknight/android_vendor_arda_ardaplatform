@@ -6,5 +6,6 @@
         <permission name="android.permission.INTERACT_ACROSS_USERS_FULL" />
         <permission name="android.permission.NETWORK_SETTINGS" />
         <permission name="android.permission.OVERRIDE_WIFI_CONFIG" />
+        <permission name="android.permission.WRITE_SECURE_SETTINGS" />
     </privapp-permissions>
 </permissions>
