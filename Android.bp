@@ -60,15 +60,15 @@ prebuilt_etc {
 }
 
 sh_binary {
-    name: "arda_platform_permission_bootstrap",
-    src: "arda-platform-permission-bootstrap.sh",
-    filename: "arda-platform-permission-bootstrap",
+    name: "arda_rn3b_permission_bootstrap",
+    src: "arda-rn3b-permission-bootstrap.sh",
+    filename: "arda-rn3b-permission-bootstrap",
     product_specific: true,
 }
 
 prebuilt_etc {
-    name: "arda_platform_permission_bootstrap_rc",
-    src: "arda-platform-permission-bootstrap.rc",
+    name: "arda_rn3b_permission_bootstrap_rc",
+    src: "arda-rn3b-permission-bootstrap.rc",
     filename_from_src: true,
     sub_dir: "init",
     product_specific: true,
@@ -89,6 +89,14 @@ sh_binary {
     name: "arda_aap_autostart",
     src: "arda-aap-autostart.sh",
     filename: "arda-aap-autostart",
-    system_ext_specific: true,
+    product_specific: true,
+}
+
+prebuilt_etc {
+    name: "arda_aap_autostart_rc",
+    src: "arda-aap-autostart.rc",
+    filename_from_src: true,
+    sub_dir: "init",
+    product_specific: true,
 }
 // ARDA_AAP_AUTOSTART_END
