@@ -4,11 +4,10 @@ service arda_aap_session /system/bin/sh /product/bin/arda-aap-autostart
     group root system shell bluetooth wifi inet input graphics audio camera
     seclabel u:r:su:s0
     disabled
-    oneshot
+    restart_period 2
 
-# Android USB Gadget HAL normally publishes one of these values when DHU has
-# completed the AOAP switch. Multiple start requests are harmless because init
-# keeps a named service singleton.
+# Recovery triggers for later AOAP transitions. Initial boot prewarm is owned
+# by arda-hw-encoder-mapper-bind.rc so the custom mapper is active first.
 on property:sys.usb.state=accessory
     start arda_aap_session
 
