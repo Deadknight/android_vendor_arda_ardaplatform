@@ -9,7 +9,8 @@ PRODUCT_PACKAGES += \
     arda_platform_sysconfig \
     arda_rn3b_permission_bootstrap \
     arda_rn3b_permission_bootstrap_rc \
-    arda_aap_config
+    arda_aap_config \
+    ArdaProjectionInsets
 
 # ARDA_AAP_AUTOSTART_BEGIN
 PRODUCT_PACKAGES += \
