@@ -14,6 +14,9 @@ CERT_DIR="/data/local/tmp/arda-certs"
 USB_NODE="/dev/usb_accessory"
 LOG="/data/local/tmp/arda-aap-auto.log"
 PID_FILE="/data/local/tmp/arda-aap-auto.pid"
+BOOT_SETTLE_MARKER="/dev/.arda-aap-boot-settled-v1"
+BOOT_SETTLE_TIMEOUT_SECONDS=60
+BOOT_SETTLE_STABLE_SECONDS=5
 
 mkdir -p /data/local/tmp
 umask 077
@@ -22,6 +25,59 @@ log_marker() {
     marker="$1"
     echo "$marker" >> "$LOG"
     /system/bin/log -t ARDA_AAP_AUTOSTART "$marker" 2>/dev/null || true
+}
+
+wait_for_boot_settle() {
+    if [ -e "$BOOT_SETTLE_MARKER" ]; then
+        log_marker "ARDA_AAP_BOOT_SETTLE=SKIP_ALREADY_SETTLED marker=$BOOT_SETTLE_MARKER"
+        return 0
+    fi
+
+    elapsed=0
+    ready_streak=0
+
+    log_marker "ARDA_AAP_BOOT_SETTLE_BEGIN timeout_s=$BOOT_SETTLE_TIMEOUT_SECONDS stable_s=$BOOT_SETTLE_STABLE_SECONDS"
+
+    while [ "$elapsed" -lt "$BOOT_SETTLE_TIMEOUT_SECONDS" ]; do
+        boot_completed="$(getprop sys.boot_completed 2>/dev/null || true)"
+        current_user="$(am get-current-user 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+        systemui_pid="$(pidof com.android.systemui 2>/dev/null || true)"
+        carlauncher_pid="$(pidof com.android.car.carlauncher 2>/dev/null || true)"
+
+        activity_ready=0
+        window_ready=0
+        service check activity 2>/dev/null | grep -q "found" && activity_ready=1
+        service check window 2>/dev/null | grep -q "found" && window_ready=1
+
+        if [ "$boot_completed" = "1" ] \
+            && [ "$activity_ready" = "1" ] \
+            && [ "$window_ready" = "1" ] \
+            && [ -n "$systemui_pid" ] \
+            && [ -n "$carlauncher_pid" ]; then
+            ready_streak=$((ready_streak + 1))
+        else
+            ready_streak=0
+        fi
+
+        if [ "$ready_streak" -ge "$BOOT_SETTLE_STABLE_SECONDS" ]; then
+            touch "$BOOT_SETTLE_MARKER"
+            chmod 0600 "$BOOT_SETTLE_MARKER" 2>/dev/null || true
+            log_marker "ARDA_AAP_BOOT_SETTLE_READY elapsed_s=$elapsed stable_s=$ready_streak user=$current_user systemui=$systemui_pid carlauncher=$carlauncher_pid"
+            return 0
+        fi
+
+        if [ "$elapsed" -eq 0 ] || [ $((elapsed % 5)) -eq 0 ]; then
+            log_marker "ARDA_AAP_BOOT_SETTLE_WAIT elapsed_s=$elapsed boot_completed=$boot_completed user=$current_user activity=$activity_ready window=$window_ready systemui=${systemui_pid:-none} carlauncher=${carlauncher_pid:-none} streak=$ready_streak"
+        fi
+
+        sleep 1
+        elapsed=$((elapsed + 1))
+    done
+
+    touch "$BOOT_SETTLE_MARKER"
+    chmod 0600 "$BOOT_SETTLE_MARKER" 2>/dev/null || true
+    log_marker "ARDA_AAP_BOOT_SETTLE_TIMEOUT_CONTINUE elapsed_s=$elapsed"
+    return 0
 }
 
 cleanup() {
@@ -39,6 +95,10 @@ if [ -s "$PID_FILE" ]; then
 fi
 
 echo "$$" > "$PID_FILE"
+
+# Hold only the first AAP session of each boot until the foreground AAOS UI stack
+# is stable. /dev is tmpfs, so the marker naturally disappears on reboot.
+wait_for_boot_settle
 
 session_id="$(date +%s 2>/dev/null || echo unknown)"
 log_marker "ARDA_AAP_AUTOSTART_BEGIN session=$session_id pid=$$ usb_state=$(getprop sys.usb.state) usb_config=$(getprop sys.usb.config)"
