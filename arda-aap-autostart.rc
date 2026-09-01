@@ -6,8 +6,12 @@ service arda_aap_session /system/bin/sh /product/bin/arda-aap-autostart
     disabled
     restart_period 2
 
-# Recovery triggers for later AOAP transitions. Initial boot prewarm is owned
-# by arda-hw-encoder-mapper-bind.rc so the custom mapper is active first.
+# Initial boot prewarm and recovery triggers for later AOAP transitions.
+# The encoder mapper now lives in the official allocator APEX, so no late-bind
+# ordering dependency remains.
+on property:sys.boot_completed=1
+    start arda_aap_session
+
 on property:sys.usb.state=accessory
     start arda_aap_session
 

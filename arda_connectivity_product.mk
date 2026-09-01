@@ -18,11 +18,5 @@ PRODUCT_PACKAGES += \
     arda_aap_autostart_rc
 # ARDA_AAP_AUTOSTART_END
 
-# ARDA_RPI4_HW_ENCODER_PERSIST_BEGIN
-# The custom mapper core is installed below vendor/lib64/egl so the existing
-# platform file-context rule labels it same_process_hal_file.
-PRODUCT_PACKAGES += \
-    libarda_minigbm_gralloc_gbm_mesa \
-    arda_hw_encoder_mapper_bind \
-    arda_hw_encoder_mapper_bind_rc
-# ARDA_RPI4_HW_ENCODER_PERSIST_END
+# The encoder Surface allocator is integrated in the official minigbm APEX.
+# The legacy vendor mapper late-bind override is intentionally not packaged.
