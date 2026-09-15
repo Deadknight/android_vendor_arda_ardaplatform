@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <!--
+        ARDA AAOS multi-user provisioning.
+
+        ArdaPlatform is a product priv-app and must be installed not only for
+        Android system user 0, but also for full automotive foreground users
+        such as the Driver user created by CarService (for example user 10).
+    -->
+    <install-in-user-type package="com.github.deadknight.ardaplatform.debug">
+        <install-in user-type="SYSTEM" />
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+</config>

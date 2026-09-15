@@ -20,3 +20,9 @@ PRODUCT_PACKAGES += \
 
 # The encoder Surface allocator is integrated in the official minigbm APEX.
 # The legacy vendor mapper late-bind override is intentionally not packaged.
+
+# ARDA: install ArdaPlatform for AAOS system + full automotive users.
+# This makes the built-in priv-app available to foreground Driver users
+# created after a fresh image/data boot.
+PRODUCT_COPY_FILES += \
+    vendor/arda/ardaplatform/arda-platform-user-types.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/arda-platform-user-types.xml
