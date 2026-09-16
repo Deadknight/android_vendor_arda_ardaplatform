@@ -26,3 +26,14 @@ PRODUCT_PACKAGES += \
 # created after a fresh image/data boot.
 PRODUCT_COPY_FILES += \
     vendor/arda/ardaplatform/arda-platform-user-types.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/arda-platform-user-types.xml
+
+# ARDA_USB_ACCESSORY_SINK_BEGIN
+# Existing AOAP accessory intent sink. It prevents the AAOS
+# "No installed apps work with this USB accessory" dialog while
+# arda-connectivityd continues to own /dev/usb_accessory data I/O.
+PRODUCT_PACKAGES += \
+    ArdaUsbAccessorySink
+
+PRODUCT_PACKAGES += \
+    arda_usb_accessory_sink_sysconfig
+# ARDA_USB_ACCESSORY_SINK_END
