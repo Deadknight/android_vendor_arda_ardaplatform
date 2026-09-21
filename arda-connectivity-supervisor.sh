@@ -4,6 +4,12 @@ set -u
 SENDERD="/system_ext/bin/arda-connectivityd"
 CONFIG="/data/user_de/0/com.github.deadknight.ardaplatform.debug/files/arda-connectivity.toml"
 LOG="/data/local/tmp/arda-connectivityd.log"
+# ARDA_PERSISTENT_DATA_ROOT_V1_1
+ARDA_DATA_ROOT="/data/local/arda"
+mkdir -p "$ARDA_DATA_ROOT/aap-key-update" "$ARDA_DATA_ROOT/aap-certs"
+chmod 0700 "$ARDA_DATA_ROOT" "$ARDA_DATA_ROOT/aap-key-update" "$ARDA_DATA_ROOT/aap-certs"
+/system/bin/restorecon -RF "$ARDA_DATA_ROOT" >/dev/null 2>&1 || true
+
 PID_FILE="/data/local/tmp/arda-connectivityd.pid"
 POLL_SECONDS=1
 

@@ -17,7 +17,8 @@ PI4_OPTIMAL_FPS_CAP=30
 PI5_OPTIMAL_FPS_CAP=60
 PI4_DEFAULT_VIDEO_CODEC="c2.v4l2.avc.encoder"
 PI5_DEFAULT_VIDEO_CODEC="c2.android.avc.encoder"
-CERT_DIR="/data/local/tmp/arda-certs"
+CERT_DIR="/data/local/arda/aap-certs"
+LEGACY_CERT_DIR="/data/local/tmp/arda-certs"
 USB_NODE="/dev/usb_accessory"
 LOG="/data/local/tmp/arda-aap-auto.log"
 PID_FILE="/data/local/tmp/arda-aap-auto.pid"
@@ -58,6 +59,16 @@ fi
 if [ ! -s "$CONFIG" ]; then
     log_marker "ARDA_AAP_AUTOSTART=FAIL_CONFIG_MISSING path=$CONFIG"
     exit 2
+fi
+
+# ARDA_AAP_AUTOSTART_PERSISTENT_CERT_ROOT_V1_1
+# Temporary validation fallback. Prefer /data/local/arda; only use
+# the old /data/local/tmp pair until migration has been proven.
+if [ ! -s "$CERT_DIR/active/md_cert.pem" ] || [ ! -s "$CERT_DIR/active/md_key.pem" ]; then
+    if [ -s "$LEGACY_CERT_DIR/active/md_cert.pem" ] && [ -s "$LEGACY_CERT_DIR/active/md_key.pem" ]; then
+        CERT_DIR="$LEGACY_CERT_DIR"
+        echo "ARDA_AAP_AUTOSTART_CERT_ROOT=LEGACY_FALLBACK dir=$CERT_DIR"
+    fi
 fi
 
 # ARDA_AAP_AUTOSTART_ACTIVE_CERTS_V1
