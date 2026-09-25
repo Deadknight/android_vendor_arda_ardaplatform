@@ -318,14 +318,49 @@ else
     video_codec="$default_profile_codec"
     video_codec_reason="HW_PROFILE_DEFAULT"
 fi
-log_marker "ARDA_AAP_AUTOSTART_LAUNCH=YES config=$CONFIG video_override=$VIDEO_OVERRIDE_CONFIG video_policy=$video_policy video_hw_requested=$requested_hw_profile video_hw_resolved=$resolved_hw_profile video_fps_mode=$video_fps_mode video_fps_cap=$video_fps_cap video_codec=$video_codec video_codec_reason=$video_codec_reason usb_node=$USB_NODE wait_seconds=$wait_seconds"
+# ARDA_GENERIC_VIDEO_BITRATE_V1
+# Codec-independent UI bitrate. Positive valid values are forwarded to AAP,
+# which passes them to screenrecord --bit-rate regardless of selected encoder.
+generic_video_bitrate_raw="$(
+    /system/bin/settings get global arda_video_bitrate_bps 2>/dev/null || echo null
+)"
+case "$generic_video_bitrate_raw" in
+    ""|null|0)
+        generic_video_bitrate_bps=0
+        generic_video_bitrate_reason="PRODUCTION_DEFAULT"
+        ;;
+    *[!0-9]*)
+        generic_video_bitrate_bps=0
+        generic_video_bitrate_reason="INVALID_NON_NUMERIC_FAIL_DEFAULT"
+        ;;
+    *)
+        if [ "$generic_video_bitrate_raw" -ge 4096 ] &&
+           [ "$generic_video_bitrate_raw" -le 12000000 ]; then
+            generic_video_bitrate_bps="$generic_video_bitrate_raw"
+            generic_video_bitrate_reason="USER_OVERRIDE"
+        else
+            generic_video_bitrate_bps=0
+            generic_video_bitrate_reason="OUT_OF_RANGE_FAIL_DEFAULT"
+        fi
+        ;;
+esac
+
+log_marker "ARDA_VIDEO_BITRATE_GENERIC raw=$generic_video_bitrate_raw effective_bps=$generic_video_bitrate_bps reason=$generic_video_bitrate_reason codec=$video_codec resolved_profile=$resolved_hw_profile"
+
+log_marker "ARDA_AAP_AUTOSTART_LAUNCH=YES config=$CONFIG video_override=$VIDEO_OVERRIDE_CONFIG video_policy=$video_policy video_hw_requested=$requested_hw_profile video_hw_resolved=$resolved_hw_profile video_fps_mode=$video_fps_mode video_fps_cap=$video_fps_cap video_codec=$video_codec video_codec_reason=$video_codec_reason generic_video_bitrate_bps=$generic_video_bitrate_bps generic_video_bitrate_reason=$generic_video_bitrate_reason usb_node=$USB_NODE wait_seconds=$wait_seconds"
+
+# Build argv without eval. Bitrate override is optional and numeric-only.
+set -- aap-run \
+    --video-config-policy "$video_policy" \
+    --video-fps "$video_fps_cap"
+
+if [ "$generic_video_bitrate_bps" -gt 0 ]; then
+    set -- "$@" --video-bit-rate "$generic_video_bitrate_bps"
+fi
 
 ARDA_PLATFORM_PACKAGE="$PLATFORM_PACKAGE" \
 ARDA_SCREENRECORD_CODEC="$video_codec" \
-"$BINARY" aap-run \
-    --video-config-policy "$video_policy" \
-    --video-fps "$video_fps_cap" \
-    >> "$LOG" 2>&1
+"$BINARY" "$@" >> "$LOG" 2>&1
 rc=$?
 
 log_marker "ARDA_AAP_AUTOSTART_END session=$session_id rc=$rc usb_state=$(getprop sys.usb.state) usb_config=$(getprop sys.usb.config)"
