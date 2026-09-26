@@ -37,3 +37,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     arda_usb_accessory_sink_sysconfig
 # ARDA_USB_ACCESSORY_SINK_END
+
+# ARDA_FINAL_IMAGE_TEST_APP_OVERRIDE_V2
+# Keep AOSP test/demo sources, but exclude their packages from final Pi4/Pi5 images.
+ifneq ($(filter aosp_rpi4_car aosp_rpi5_car,$(TARGET_PRODUCT)),)
+PRODUCT_PACKAGES += arda_final_image_test_app_filter
+endif
