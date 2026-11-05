@@ -351,6 +351,10 @@ log_marker "ARDA_AAP_AUTOSTART_LAUNCH=YES config=$CONFIG video_override=$VIDEO_O
 
 # Build argv without eval. Bitrate override is optional and numeric-only.
 set -- aap-run \
+    --sensor-open \
+    --sensor-max-type 10 \
+    --sensor-forward-os \
+    --sensor-forward-vhal \
     --video-config-policy "$video_policy" \
     --video-fps "$video_fps_cap"
 

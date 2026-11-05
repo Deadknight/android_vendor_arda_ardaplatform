@@ -56,16 +56,16 @@ open = false
 stream = "media"
 
 [sensor]
-# Persistent DHU/AAP location-only profile. The phone/DHU advertises the
-# SensorSourceService; ARDA requests only SENSOR_LOCATION (type 1) and forwards
-# fixes to the arda_gps GNSS bridge. VHAL forwarding remains disabled.
+# Persistent AAP location + night-mode candidate profile. Advertised types up to 10
+# may be requested; only explicitly supported vehicle properties are effective.
+# Keep location fixes forwarded to the arda_gps GNSS bridge.
 open = true
 request_all = true
-max_type = 1
+max_type = 10
 period_ms = 200
 jsonl = "none"
 forward_os = true
-forward_vhal = false
+forward_vhal = true
 location_provider = "arda_gps"
 location_min_ms = 200
 vhal_min_ms = 500
