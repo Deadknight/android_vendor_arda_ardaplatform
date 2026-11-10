@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <!-- No APEX/module-installer authorization. APK staged sessions only. -->
+    <whitelisted-staged-installer package="com.arda.updater" />
+</permissions>

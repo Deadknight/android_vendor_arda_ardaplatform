@@ -1,0 +1,40 @@
+// The keypair is provisioned locally from ~/.arda-release-keys/apk.
+// updater/signing is intentionally excluded from Git.
+android_app_certificate {
+    name: "arda_updater_release_certificate",
+    certificate: "signing/arda-app-release",
+}
+
+android_app {
+    name: "ArdaUpdater",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+
+    certificate: ":arda_updater_release_certificate",
+    privileged: true,
+    product_specific: true,
+    sdk_version: "system_current",
+
+    optimize: {
+        enabled: true,
+    },
+}
+
+prebuilt_etc {
+    name: "ArdaUpdaterPrivPermissions",
+    src: "privapp-permissions-com.arda.updater.xml",
+    filename_from_src: true,
+    sub_dir: "permissions",
+    product_specific: true,
+}
+
+// ARDA: authorize ONLY our privileged installer for Android staged APK sessions.
+// SystemConfig reads this file from product/etc/sysconfig at boot.
+prebuilt_etc {
+    name: "ArdaUpdaterStagedInstallerAllowlist",
+    src: "arda-updater-staged-installers.xml",
+    filename_from_src: true,
+    sub_dir: "sysconfig",
+    product_specific: true,
+}

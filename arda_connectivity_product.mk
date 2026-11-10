@@ -43,3 +43,11 @@ PRODUCT_PACKAGES += \
 ifneq ($(filter aosp_rpi4_car aosp_rpi5_car,$(TARGET_PRODUCT)),)
 PRODUCT_PACKAGES += arda_final_image_test_app_filter
 endif
+
+# ARDA_UPDATER_V1_PRODUCT
+ifneq ($(filter aosp_rpi4_car aosp_rpi5_car,$(TARGET_PRODUCT)),)
+PRODUCT_PACKAGES += \
+    ArdaUpdater \
+    ArdaUpdaterPrivPermissions \
+    ArdaUpdaterStagedInstallerAllowlist
+endif
